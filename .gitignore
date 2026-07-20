@@ -1,2 +1,5 @@
 /pawnmigrate
+/dist/
+*.out
+*.test
 *.bak

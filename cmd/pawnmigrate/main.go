@@ -22,6 +22,8 @@ import (
 
 const outputJSON = "json"
 
+var version = "dev"
+
 func main() { os.Exit(run(os.Args[1:])) }
 
 func run(args []string) int {
@@ -33,12 +35,12 @@ func run(args []string) int {
 	output := flags.String("output", "human", "output format: human, json, or diff")
 	status := flags.Bool("status", false, "report migration applicability")
 	allowDirty := flags.Bool("allow-dirty", false, "apply outside a clean Git worktree")
+	showVersion := flags.Bool("version", false, "print the version")
 	if err := flags.Parse(args); err != nil {
 		return 2
 	}
-	if flags.NArg() != 0 {
-		fmt.Fprintln(os.Stderr, "pawnmigrate: unexpected positional arguments")
-		return 2
+	if code, handled := earlyExit(flags.NArg(), *showVersion); handled {
+		return code
 	}
 	if *apply && *status {
 		fmt.Fprintln(os.Stderr, "pawnmigrate: --apply and --status cannot be combined")
@@ -111,6 +113,20 @@ func run(args []string) int {
 		return 3
 	}
 	return 0
+}
+
+func earlyExit(positional int, showVersion bool) (int, bool) {
+	if positional != 0 {
+		_, _ = fmt.Fprintln(os.Stderr, "pawnmigrate: unexpected positional arguments")
+		return 2, true
+	}
+	if showVersion {
+		if _, err := fmt.Fprintln(os.Stdout, version); err != nil {
+			return 3, true
+		}
+		return 0, true
+	}
+	return 0, false
 }
 
 func writeReport(format string, plan migrate.Plan) error {

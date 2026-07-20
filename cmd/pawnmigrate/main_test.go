@@ -17,3 +17,11 @@ func TestRunRejectsInvalidOptionsBeforeLoadingProject(t *testing.T) {
 		}
 	}
 }
+
+func TestRunVersion(t *testing.T) {
+	t.Parallel()
+
+	if code := run([]string{"--version"}); code != 0 {
+		t.Fatalf("run(--version) = %d, want 0", code)
+	}
+}

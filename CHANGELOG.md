@@ -2,7 +2,7 @@
 
 Notable changes are recorded here.
 
-## Unreleased
+## 0.1.0 - 2026-07-20
 
 ### Added
 
@@ -10,3 +10,4 @@ Notable changes are recorded here.
 - Built-in manifest, open.mp include, and deprecated-call migrations.
 - Clean-worktree checks, stale-plan detection, and rollback.
 - Human, JSON, and diff output.
+- Release archives for Linux, macOS, and Windows.

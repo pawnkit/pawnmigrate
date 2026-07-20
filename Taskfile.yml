@@ -19,7 +19,9 @@ tasks:
 
   check:
     cmds:
-      - test -z "$(gofmt -l .)"
+      - test -z "$(gofumpt -l .)"
+      - go mod tidy
+      - git diff --exit-code -- go.mod go.sum
       - go build ./...
       - go vet ./...
       - golangci-lint run ./...

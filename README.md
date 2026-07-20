@@ -4,9 +4,15 @@
 
 ## Install
 
+Download a binary from the
+[release page](https://github.com/pawnkit/pawnmigrate/releases), or install it
+with Go:
+
 ```sh
 go install github.com/pawnkit/pawnmigrate/cmd/pawnmigrate@latest
 ```
+
+Check the installed version with `pawnmigrate --version`.
 
 Start with a diff:
 
