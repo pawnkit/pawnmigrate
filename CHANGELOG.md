@@ -2,6 +2,12 @@
 
 Notable changes are recorded here.
 
+## 0.2.0 - 2026-07-23
+
+### Changed
+
+- Limited API rename migrations to reviewed, high-confidence metadata.
+
 ## 0.1.4 - 2026-07-23
 
 ### Changed

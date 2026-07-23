@@ -52,8 +52,10 @@ func (r DeprecatedCalls) Plan(ctx context.Context, file migrate.File) ([]textedi
 		if len(entries) != 1 || entries[0].Name != name || entries[0].Deprecated == nil {
 			return
 		}
-		replacement, ok := r.Index.ByID(entries[0].Deprecated.Replacement)
-		if !ok || replacement.Name == "" || replacement.Name == name {
+		deprecated := entries[0]
+		replacement, ok := r.Index.ByID(deprecated.Deprecated.Replacement)
+		if !ok || replacement.Name == "" || replacement.Name == name ||
+			!reviewedAPIEntry(deprecated) || !reviewedAPIEntry(replacement) {
 			return
 		}
 		edits = append(edits, textedit.Edit{
@@ -62,6 +64,10 @@ func (r DeprecatedCalls) Plan(ctx context.Context, file migrate.File) ([]textedi
 		})
 	})
 	return edits, nil
+}
+
+func reviewedAPIEntry(entry pawnapi.Entry) bool {
+	return entry.Confidence == pawnapi.ConfidenceHigh && entry.ReviewStatus == pawnapi.ReviewReviewed
 }
 
 func unresolvedCall(result *analysis.Result, name string, start, end int) bool {
