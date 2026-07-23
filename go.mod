@@ -3,11 +3,11 @@ module github.com/pawnkit/pawnmigrate
 go 1.26.5
 
 require (
-	github.com/pawnkit/pawn-analysis v0.1.0
+	github.com/pawnkit/pawn-analysis v0.1.10
 	github.com/pawnkit/pawn-api v0.1.0
-	github.com/pawnkit/pawn-parser v1.1.0
-	github.com/pawnkit/pawn-project v0.1.0
-	github.com/pawnkit/pawnfmt v1.2.1
+	github.com/pawnkit/pawn-parser v1.1.9
+	github.com/pawnkit/pawn-project v0.1.3
+	github.com/pawnkit/pawnfmt v1.3.3
 	github.com/pawnkit/pawnkit-core v0.1.0
 	golang.org/x/sys v0.47.0
 	gopkg.in/yaml.v3 v3.0.1
