@@ -2,6 +2,12 @@
 
 Notable changes are recorded here.
 
+## 0.1.2 - 2026-07-23
+
+### Fixed
+
+- Updated API, project, analysis, and formatting dependencies.
+
 ## 0.1.1 - 2026-07-23
 
 ### Fixed
