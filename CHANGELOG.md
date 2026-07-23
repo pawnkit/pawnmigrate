@@ -2,6 +2,12 @@
 
 Notable changes are recorded here.
 
+## 0.1.3 - 2026-07-23
+
+### Fixed
+
+- Updated project discovery, analysis, and API metadata dependencies.
+
 ## 0.1.2 - 2026-07-23
 
 ### Fixed
