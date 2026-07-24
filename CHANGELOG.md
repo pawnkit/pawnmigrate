@@ -2,6 +2,13 @@
 
 Notable changes are recorded here.
 
+## 0.2.1 - 2026-07-24
+
+### Changed
+
+- Updated the analysis dependency to v0.1.15, which removes duplicate work
+  and a quadratic scan from large-file analysis.
+
 ## 0.2.0 - 2026-07-23
 
 ### Changed
