@@ -1,5 +1,7 @@
 # pawnmigrate
 
+[![Maturity: preview](https://img.shields.io/badge/maturity-preview-blue)](.pawnkit/support.json)
+
 `pawnmigrate` updates Pawn projects without hiding what it plans to change.
 
 ## Install

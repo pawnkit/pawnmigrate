@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "repository": "pawnkit/pawnmigrate",
+  "maturity": "preview",
+  "platforms": ["linux-amd64"],
+  "profiles": ["samp-037", "openmp"],
+  "compilers": [],
+  "contracts": [
+    { "name": "pawn-project", "major": 1 }
+  ],
+  "limitations": [
+    "Migration recipes require review before applying changes.",
+    "Windows and macOS builds are not tested in this repository."
+  ]
+}

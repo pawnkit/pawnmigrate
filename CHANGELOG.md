@@ -2,6 +2,12 @@
 
 Notable changes are recorded here.
 
+## 0.2.2 - 2026-07-25
+
+### Changed
+
+- Added the repository support record with CI validation.
+
 ## 0.2.1 - 2026-07-24
 
 ### Changed
