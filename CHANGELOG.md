@@ -2,6 +2,13 @@
 
 Notable changes are recorded here.
 
+## 0.2.3 - 2026-07-30
+
+### Changed
+
+- Clarified that project and library-to-library migrations share the same
+  preview and safety model.
+
 ## 0.2.2 - 2026-07-25
 
 ### Changed
