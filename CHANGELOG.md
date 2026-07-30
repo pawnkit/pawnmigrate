@@ -2,6 +2,13 @@
 
 Notable changes are recorded here.
 
+## 0.2.4 - 2026-07-30
+
+### Changed
+
+- Updated project, parser, analysis, API, formatter, and core dependencies to
+  the current PawnKit releases.
+
 ## 0.2.3 - 2026-07-30
 
 ### Changed
