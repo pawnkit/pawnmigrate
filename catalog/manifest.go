@@ -89,4 +89,6 @@ func encodeManifest(path string, document map[string]any) ([]byte, error) {
 	return append(formatted, '\n'), nil
 }
 
-func Builtins() []migrate.Rule { return []migrate.Rule{ManifestSchema{}, OpenMPInclude{}} }
+func Builtins() []migrate.Rule {
+	return []migrate.Rule{ManifestSchema{}, OpenMPInclude{}, YSIOfficial{}}
+}

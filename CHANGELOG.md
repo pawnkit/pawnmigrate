@@ -2,6 +2,12 @@
 
 Notable changes are recorded here.
 
+## 0.3.0 - 2026-08-01
+
+### Added
+
+- Added the review-required `project.ysi-official` manifest migration.
+
 ## 0.2.4 - 2026-07-30
 
 ### Changed
