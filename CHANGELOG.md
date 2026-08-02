@@ -2,12 +2,16 @@
 
 Notable changes are recorded here.
 
-## Unreleased
+## 0.3.2 - 2026-08-02
 
 ### Added
 
 - Added a safe migration that removes duplicate `pawnkit.includePaths` entries.
 - Manifest migrations can now compose their full-file edits in one plan.
+
+### Changed
+
+- Use pawn-analysis 0.30.9 and pawn-parser 1.5.8.
 
 ## 0.3.1 - 2026-08-01
 
