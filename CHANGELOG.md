@@ -2,6 +2,12 @@
 
 Notable changes are recorded here.
 
+## 0.3.5 - 2026-08-02
+
+### Changed
+
+- Use pawn-api 0.19.3.
+
 ## 0.3.4 - 2026-08-02
 
 ### Changed
