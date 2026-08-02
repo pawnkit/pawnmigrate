@@ -2,6 +2,12 @@
 
 Notable changes are recorded here.
 
+## 0.3.7 - 2026-08-02
+
+### Changed
+
+- Use pawn-analysis 0.30.11.
+
 ## 0.3.6 - 2026-08-02
 
 ### Changed
