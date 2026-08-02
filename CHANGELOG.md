@@ -2,6 +2,12 @@
 
 Notable changes are recorded here.
 
+## 0.3.4 - 2026-08-02
+
+### Changed
+
+- Use pawnfmt 1.4.7 and pawn-project 0.34.2.
+
 ## 0.3.3 - 2026-08-02
 
 ### Changed
