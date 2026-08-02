@@ -2,6 +2,12 @@
 
 Notable changes are recorded here.
 
+## 0.3.6 - 2026-08-02
+
+### Changed
+
+- Use pawn-analysis 0.30.10 for function-effect data.
+
 ## 0.3.5 - 2026-08-02
 
 ### Changed
