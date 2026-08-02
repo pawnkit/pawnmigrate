@@ -46,6 +46,23 @@ func TestBuildRejectsConflictsAcrossRules(t *testing.T) {
 	}
 }
 
+func TestBuildComposesWholeFileRules(t *testing.T) {
+	fileID := source.FileID(1)
+	file := migrate.File{Path: "pawn.json", ID: fileID, Content: "one"}
+	rules := []migrate.Rule{
+		rule{metadata: metadata("one", migrate.Safe), edits: []textedit.Edit{{Span: source.Span{File: fileID, Start: 0, End: 3}, NewText: "two"}}},
+		rule{metadata: metadata("two", migrate.Safe), edits: []textedit.Edit{{Span: source.Span{File: fileID, Start: 0, End: 3}, NewText: "three"}}},
+	}
+	plan, err := migrate.Build(context.Background(), []migrate.File{file}, rules, migrate.Options{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	results, err := plan.Preview()
+	if err != nil || len(results) != 1 || results[0].After != "three" {
+		t.Fatalf("results/error = %#v %v", results, err)
+	}
+}
+
 func TestBuildRejectsUnknownSelection(t *testing.T) {
 	_, err := migrate.Build(context.Background(), nil, []migrate.Rule{
 		rule{metadata: metadata("known", migrate.Safe)},

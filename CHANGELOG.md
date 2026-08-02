@@ -2,6 +2,13 @@
 
 Notable changes are recorded here.
 
+## Unreleased
+
+### Added
+
+- Added a safe migration that removes duplicate `pawnkit.includePaths` entries.
+- Manifest migrations can now compose their full-file edits in one plan.
+
 ## 0.3.1 - 2026-08-01
 
 ### Changed

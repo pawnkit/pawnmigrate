@@ -64,6 +64,7 @@ type Change struct {
 	Edits     []textedit.Edit `json:"-"`
 	Before    string          `json:"before"`
 	After     string          `json:"after"`
+	order     int
 }
 
 type Rule interface {
@@ -88,22 +89,9 @@ type FileResult struct {
 }
 
 func (p Plan) Preview() ([]FileResult, error) {
-	type collected struct {
-		before string
-		edits  []textedit.Edit
-		set    bool
-	}
-	byPath := make(map[string]collected)
+	byPath := make(map[string][]Change)
 	for _, change := range p.Changes {
-		item := byPath[change.Path]
-		if !item.set {
-			item.before = change.Before
-			item.set = true
-		} else if item.before != change.Before {
-			return nil, fmt.Errorf("inconsistent source snapshots for %s", change.Path)
-		}
-		item.edits = append(item.edits, change.Edits...)
-		byPath[change.Path] = item
+		byPath[change.Path] = append(byPath[change.Path], change)
 	}
 	paths := make([]string, 0, len(byPath))
 	for path := range byPath {
@@ -112,14 +100,50 @@ func (p Plan) Preview() ([]FileResult, error) {
 	sort.Strings(paths)
 	results := make([]FileResult, 0, len(paths))
 	for _, path := range paths {
-		item := byPath[path]
-		after, err := textedit.Apply(item.before, item.edits)
+		changes := byPath[path]
+		sort.SliceStable(changes, func(i, j int) bool { return changes[i].order < changes[j].order })
+		before, after, err := previewChanges(changes)
 		if err != nil {
 			return nil, err
 		}
-		results = append(results, FileResult{Path: path, Before: item.before, After: after})
+		results = append(results, FileResult{Path: path, Before: before, After: after})
 	}
 	return results, nil
+}
+
+func previewChanges(changes []Change) (string, string, error) {
+	if len(changes) == 0 {
+		return "", "", nil
+	}
+	before := changes[0].Before
+	allSameBefore := true
+	for _, change := range changes[1:] {
+		if change.Before != before {
+			allSameBefore = false
+			break
+		}
+	}
+	if allSameBefore {
+		var edits []textedit.Edit
+		for _, change := range changes {
+			edits = append(edits, change.Edits...)
+		}
+		after, err := textedit.Apply(before, edits)
+		return before, after, err
+	}
+
+	current := before
+	for _, change := range changes {
+		if change.Before != current {
+			return "", "", fmt.Errorf("inconsistent source snapshots for %s", change.Path)
+		}
+		var err error
+		current, err = textedit.Apply(current, change.Edits)
+		if err != nil {
+			return "", "", err
+		}
+	}
+	return before, current, nil
 }
 
 func Build(ctx context.Context, files []File, rules []Rule, opts Options) (Plan, error) {
@@ -173,13 +197,85 @@ func Build(ctx context.Context, files []File, rules []Rule, opts Options) (Plan,
 		}
 	}
 	if err := validateConflicts(plan.Changes); err != nil {
-		return Plan{}, err
+		if !canComposeWholeFile(plan.Changes) {
+			return Plan{}, err
+		}
+		return composeWholeFilePlan(ctx, files, rules, opts)
 	}
 	sort.SliceStable(plan.Changes, func(i, j int) bool {
 		if plan.Changes[i].Path != plan.Changes[j].Path {
 			return plan.Changes[i].Path < plan.Changes[j].Path
 		}
-		return plan.Changes[i].Migration.ID < plan.Changes[j].Migration.ID
+		return plan.Changes[i].order < plan.Changes[j].order
+	})
+	return plan, nil
+}
+
+func canComposeWholeFile(changes []Change) bool {
+	byPath := make(map[string][]Change)
+	for _, change := range changes {
+		byPath[change.Path] = append(byPath[change.Path], change)
+	}
+	for _, pathChanges := range byPath {
+		if len(pathChanges) < 2 {
+			continue
+		}
+		for _, change := range pathChanges {
+			if len(change.Edits) != 1 {
+				return false
+			}
+			edit := change.Edits[0]
+			if edit.Span.Start != 0 || int(edit.Span.End) != len(change.Before) {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func composeWholeFilePlan(ctx context.Context, files []File, rules []Rule, opts Options) (Plan, error) {
+	plan := Plan{SchemaVersion: 1}
+	order := 0
+	for _, file := range files {
+		current := file
+		for _, rule := range rules {
+			metadata := rule.Metadata()
+			if len(opts.Selected) > 0 && !opts.Selected[metadata.ID] {
+				continue
+			}
+			if metadata.Safety == ReviewRequired && !opts.AllowUnsafe {
+				continue
+			}
+			if err := ctx.Err(); err != nil {
+				return Plan{}, err
+			}
+			edits, err := rule.Plan(ctx, current)
+			if err != nil {
+				return Plan{}, fmt.Errorf("%s: %s: %w", metadata.ID, file.Path, err)
+			}
+			if len(edits) == 0 {
+				continue
+			}
+			if len(edits) != 1 || edits[0].Span.Start != 0 || int(edits[0].Span.End) != len(current.Content) {
+				return Plan{}, fmt.Errorf("conflicting edits for %s", file.Path)
+			}
+			after, err := textedit.Apply(current.Content, edits)
+			if err != nil {
+				return Plan{}, fmt.Errorf("%s: %s: %w", metadata.ID, file.Path, err)
+			}
+			plan.Changes = append(plan.Changes, Change{
+				Migration: metadata, Path: file.Path, Edits: edits,
+				Before: current.Content, After: after, order: order,
+			})
+			order++
+			current.Content = after
+		}
+	}
+	sort.SliceStable(plan.Changes, func(i, j int) bool {
+		if plan.Changes[i].Path != plan.Changes[j].Path {
+			return plan.Changes[i].Path < plan.Changes[j].Path
+		}
+		return plan.Changes[i].order < plan.Changes[j].order
 	})
 	return plan, nil
 }

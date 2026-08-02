@@ -90,5 +90,5 @@ func encodeManifest(path string, document map[string]any) ([]byte, error) {
 }
 
 func Builtins() []migrate.Rule {
-	return []migrate.Rule{ManifestSchema{}, OpenMPInclude{}, YSIOfficial{}}
+	return []migrate.Rule{ManifestSchema{}, ManifestCleanup{}, OpenMPInclude{}, YSIOfficial{}}
 }

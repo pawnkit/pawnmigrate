@@ -62,14 +62,9 @@ func Apply(writer Writer, plan Plan) error {
 }
 
 func ApplyWithOptions(writer Writer, plan Plan, opts ApplyOptions) error {
-	byPath := make(map[string][]textedit.Edit)
-	expected := make(map[string]string)
+	byPath := make(map[string][]Change)
 	for _, change := range plan.Changes {
-		byPath[change.Path] = append(byPath[change.Path], change.Edits...)
-		if before, ok := expected[change.Path]; ok && before != change.Before {
-			return fmt.Errorf("%w: inconsistent snapshots for %s", ErrStalePlan, change.Path)
-		}
-		expected[change.Path] = change.Before
+		byPath[change.Path] = append(byPath[change.Path], change)
 	}
 	paths := make([]string, 0, len(byPath))
 	for path := range byPath {
@@ -78,15 +73,14 @@ func ApplyWithOptions(writer Writer, plan Plan, opts ApplyOptions) error {
 	sort.Strings(paths)
 	stagedFiles := make([]fileState, 0, len(byPath))
 	for _, path := range paths {
-		edits := byPath[path]
+		changes := byPath[path]
+		sort.SliceStable(changes, func(i, j int) bool { return changes[i].order < changes[j].order })
 		content, err := writer.ReadFile(path)
 		if err != nil {
 			return err
 		}
-		if string(content) != expected[path] {
-			return fmt.Errorf("%w: %s changed after planning", ErrStalePlan, path)
-		}
-		after, err := textedit.Apply(string(content), edits)
+		before := string(content)
+		after, err := applyChanges(path, before, changes)
 		if err != nil {
 			return err
 		}
@@ -97,7 +91,7 @@ func ApplyWithOptions(writer Writer, plan Plan, opts ApplyOptions) error {
 			}
 			after = string(formatted)
 		}
-		stagedFiles = append(stagedFiles, fileState{path: path, before: string(content), after: after})
+		stagedFiles = append(stagedFiles, fileState{path: path, before: before, after: after})
 	}
 	written := make([]fileState, 0, len(stagedFiles))
 	for _, file := range stagedFiles {
@@ -108,6 +102,46 @@ func ApplyWithOptions(writer Writer, plan Plan, opts ApplyOptions) error {
 		written = append(written, file)
 	}
 	return nil
+}
+
+func applyChanges(path, before string, changes []Change) (string, error) {
+	if len(changes) == 0 {
+		return before, nil
+	}
+	allSameBefore := true
+	for _, change := range changes[1:] {
+		if change.Before != changes[0].Before {
+			allSameBefore = false
+			break
+		}
+	}
+	if allSameBefore {
+		if before != changes[0].Before {
+			return "", fmt.Errorf("%w: %s changed after planning", ErrStalePlan, path)
+		}
+		var edits []textedit.Edit
+		for _, change := range changes {
+			edits = append(edits, change.Edits...)
+		}
+		after, err := textedit.Apply(before, edits)
+		if err != nil {
+			return "", err
+		}
+		return after, nil
+	}
+
+	current := before
+	for _, change := range changes {
+		if current != change.Before {
+			return "", fmt.Errorf("%w: %s changed after planning", ErrStalePlan, path)
+		}
+		var err error
+		current, err = textedit.Apply(current, change.Edits)
+		if err != nil {
+			return "", err
+		}
+	}
+	return current, nil
 }
 
 func rollback(writer Writer, files []fileState) error {

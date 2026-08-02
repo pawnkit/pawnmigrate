@@ -5,6 +5,7 @@ The current release knows about these migrations:
 | Migration | Safety | What it changes |
 |---|---|---|
 | `project.manifest-schema-v1` | Safe | JSON and YAML project manifests |
+| `project.manifest-cleanup-v1` | Safe | Removes exact duplicate `pawnkit.includePaths` entries |
 | `source.openmp-include` | Review required | Parsed `a_samp` include directives |
 | `api.deprecated-calls` | Review required | Calls matched against API metadata and semantic analysis |
 | `project.ysi-official` | Review required | Misiur YSI references in project manifests |

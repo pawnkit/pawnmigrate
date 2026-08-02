@@ -55,6 +55,20 @@ func TestApplyFormatsBeforeWriting(t *testing.T) {
 	}
 }
 
+func TestApplyComposedChanges(t *testing.T) {
+	writer := &memoryWriter{files: map[string][]byte{"a": []byte("a")}}
+	plan := migrate.Plan{Changes: []migrate.Change{
+		{Path: "a", Before: "a", Edits: []textedit.Edit{{Span: source.Span{File: 1, Start: 0, End: 1}, NewText: "A"}}},
+		{Path: "a", Before: "A", Edits: []textedit.Edit{{Span: source.Span{File: 1, Start: 0, End: 1}, NewText: "B"}}},
+	}}
+	if err := migrate.Apply(writer, plan); err != nil {
+		t.Fatal(err)
+	}
+	if string(writer.files["a"]) != "B" {
+		t.Fatalf("content = %q", writer.files["a"])
+	}
+}
+
 func TestApplyRejectsStalePlanBeforeWriting(t *testing.T) {
 	writer := &memoryWriter{files: map[string][]byte{"a.pwn": []byte("changed"), "b.pwn": []byte("b")}}
 	plan := migrate.Plan{Changes: []migrate.Change{
