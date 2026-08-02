@@ -2,6 +2,12 @@
 
 Notable changes are recorded here.
 
+## 0.3.8 - 2026-08-02
+
+### Changed
+
+- Use the current analysis, API, parser, and formatter releases.
+
 ## 0.3.7 - 2026-08-02
 
 ### Changed
