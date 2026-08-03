@@ -2,6 +2,12 @@
 
 Notable changes are recorded here.
 
+## 0.3.12 - 2026-08-04
+
+### Changed
+
+- Use the current pawn-analysis and pawn-api releases.
+
 ## 0.3.11 - 2026-08-03
 
 ### Changed
