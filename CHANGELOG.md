@@ -2,6 +2,13 @@
 
 Notable changes are recorded here.
 
+## 0.3.9 - 2026-08-03
+
+### Changed
+
+- Use pawn-analysis v0.30.14, pawn-api v0.19.6, pawn-parser v1.5.10, and
+  pawnfmt v1.4.9.
+
 ## 0.3.8 - 2026-08-02
 
 ### Changed
